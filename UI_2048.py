@@ -7,6 +7,8 @@ colors = {  0:"#9e948a", 2:"#eee4da", 4:"#ede0c8", 8:"#f2b179", 16:"#f59563", \
             512:"#edc850", 1024:"#edc53f", 2048:"#edc22e" }
 font = ('Verdana', 25, 'bold')
 
+# GUI 2048
+
 class App(tk.Frame):
     gMatrix     = None
     m           = None
