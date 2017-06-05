@@ -1,5 +1,5 @@
 from random import randint
-from numpy import zeros, array, apply_along_axis, nonzero, append, array_equal, copy
+from numpy import zeros, array, apply_along_axis, nonzero, append, flip
 from math import log
 
 class gameMatrix:
@@ -13,18 +13,19 @@ class gameMatrix:
     # game initialisation
    
     def addTwo(t):
-        while (True):
-            x, y = randint(0,3), randint(0,3)
-            if t.m[x][y] == 0:
-                t.m[x][y] = 2
-                break
+        if len(t.m[t.m == 0]) > 0:
+            while (True):
+                x, y = randint(0,3), randint(0,3)
+                if t.m[x][y] == 0:
+                    t.m[x][y] = 2
+                    break
         
     def startGame(t):
         t.m = zeros((4,4))
         t.addTwo()
         t.addTwo()
     
-    # check if the game is not over
+    # check if the game is over
     
     def hasEqualNeighbours(t):
         for i in range(4):
@@ -41,57 +42,59 @@ class gameMatrix:
     
     # movements
     
-    def cleanRows(t, dir):
-        for i, row in enumerate(t.m):
-            nz = row[row > 0]
-            t.m[i,:] = append(nz, (4-len(nz))*[0]) if dir == 'l' else append((4-len(nz))*[0],nz)
-            
-    def horizontalMovement(t, dir):
-        while(True):
-            for i in range(3):
-                colLeft = [int(pow(2,log(x,2)+1)) if (x == y and x != 0 and y != 0) else x for x,y in zip(t.m[:,i],t.m[:,i+1])]
-                colRight = [0 if (x == y) else y for x,y in zip(t.m[:,i],t.m[:,i+1])]
-                t.m[:,i], t.m[:,i+1]= colLeft, colRight
-            mm = copy(t.m)
-            t.cleanRows(dir)
-            if array_equal(mm,t.m):
-                break
-    
-    def moveRight(t):
-        t.horizontalMovement('r')
+    def moveLeft(t, b=False):
+        m = flip(t.m,1) if b else t.m
+
+        for i in range(4):
+            col = m[i, :][m[i, :]> 0]
+            l = len(col)
+            if l > 1:
+                tmp_col = array([])
+                for cell in range(0,l-1):
+                    if col[cell] == col[cell+1]:
+                        tmp_col = append(tmp_col, [int(pow(2,log(col[cell],2)+1))]) 
+                        col[cell+1] = 0 
+                    elif col[cell] == 0: 
+                        pass
+                    else:
+                        tmp_col = append(tmp_col, col[cell])
+                tmp_col = append(tmp_col, col[len(col)-1])
+            elif l == 1: tmp_col = [col[0]]
+            else: tmp_col = array([])
+            t.m[i,:] = flip(append(tmp_col, [0]*(4-len(tmp_col))),0) if b else append(tmp_col, [0]*(4-len(tmp_col)))
         t.gameOver = not (t.hasPossibilities())
         if not t.gameOver: t.addTwo()
         
-    def moveLeft(t):
-        t.horizontalMovement('l')
-        t.gameOver = not (t.hasPossibilities())
-        if not t.gameOver: t.addTwo()
+    def moveRight(t):
+        t.moveLeft(True)
     
-    def cleanColumns(t, dir):
-        for i, col in enumerate(t.m.T):
-            nz = col[col > 0]
-            t.m.T[i,:] = append(nz, (4-len(nz))*[0]) if dir == 'u' else append((4-len(nz))*[0],nz)
 
-    def verticalMovement(t,dir):
-        while (True):
-            for i in range(3):
-                rowUp = [int(pow(2,log(x,2)+1)) if (x == y and x != 0 and y != 0) else x for x,y in zip(t.m[i,:],t.m[i+1,:])]
-                rowDown = [0 if (x == y) else y for x,y in zip(t.m[i,:],t.m[i+1,:])]
-                t.m[i,:], t.m[i+1,:]= rowUp, rowDown
-            mm = copy(t.m)
-            t.cleanColumns(dir)
-            if array_equal(mm,t.m):
-                break
-            
-    def moveUp(t):
-        t.verticalMovement('u')
+    def moveUp(t, b=False):
+        m = flip(t.m,0) if b else t.m
+
+        for i in range(4):
+            col = m[:, i][m[:, i]> 0]
+            l = len(col)
+            if l > 1:
+                tmp_col = array([])
+                for cell in range(0,l-1):
+                    if col[cell] == col[cell+1]:
+                        tmp_col = append(tmp_col, [int(pow(2,log(col[cell],2)+1))]) 
+                        col[cell+1] = 0 
+                    elif col[cell] == 0: 
+                        pass
+                    else:
+                        tmp_col = append(tmp_col, col[cell])
+                tmp_col = append(tmp_col, col[len(col)-1])
+            elif l == 1: tmp_col = [col[0]]
+            else: tmp_col = array([])
+            t.m[:,i] = flip(append(tmp_col, [0]*(4-len(tmp_col))),0) if b else append(tmp_col, [0]*(4-len(tmp_col)))
         t.gameOver = not (t.hasPossibilities())
         if not t.gameOver: t.addTwo()
         
     def moveDown(t):
-        t.verticalMovement('d')
-        t.gameOver = not (t.hasPossibilities())
-        if not t.gameOver: t.addTwo()
+        t.moveUp(True)
+        
         
         
         

@@ -1,5 +1,6 @@
 from rules_2048 import gameMatrix
 import tkinter as tk
+from tkinter import messagebox
 import random
 
 colors = {  0:"#9e948a", 2:"#eee4da", 4:"#ede0c8", 8:"#f2b179", 16:"#f59563", \
@@ -13,8 +14,10 @@ class App(tk.Frame):
     gMatrix     = None
     m           = None
     gameOver    = None
+    window      = None
     
     def __init__(t, parent=None):
+        t.window = parent
         t.gMatrix = gameMatrix()
         t.m = t.gMatrix.m
         tk.Frame.__init__(t, parent)
@@ -26,11 +29,16 @@ class App(tk.Frame):
         t.master.bind("s", t.down)
         t.master.bind("d", t.right)
         
+    def restart(t):
+        t.gMatrix = gameMatrix()
+        t.m = t.gMatrix.m
+        t.updateGrid()
+        
     def up(t, event):
         t.gMatrix.moveUp()
         t.m = t.gMatrix.m
         t.updateGrid()
-    
+        
     def down(t, event):
         t.gMatrix.moveDown()
         t.m = t.gMatrix.m
@@ -69,15 +77,32 @@ class App(tk.Frame):
                 t.text[row,column] = t.canvas.create_text((x_text, y_text), text=tx, tags="text"+str(row)+str(column), font=font, fill='#ffffff' if n > 4 else "#776e65")
         
     def updateGrid(t):
-        t.gameOver = t.gMatrix.gameOver
-        if t.gameOver:
-            print('Game Over!')
+
         for i in range(4):
             for j in range(4):
                 t.canvas.itemconfig("rect"+str(i)+str(j), fill=colors[t.m[i,j]])
                 n = int(t.m[i, j])
                 tx = str(n) if t.m[i, j] > 0 else ''
                 t.canvas.itemconfig("text"+str(i)+str(j), text=tx, fill='#ffffff' if n > 4 else "#776e65")
+                
+        t.gameOver = t.gMatrix.gameOver
+        if t.gameOver:
+            over = messagebox.askyesno("2048", "You Lost! Try again?")
+            if over: 
+                t.restart()
+                return
+            else:
+                t.window.destroy() 
+                return 
+            
+        if 2048 in t.m:
+            win = messagebox.askyesno("2048", "You Won! Try again?")
+            if win: 
+                t.restart()
+                return
+            else:
+                t.window.destroy()
+                return
         
 
 if __name__ == "__main__":
