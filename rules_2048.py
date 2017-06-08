@@ -1,5 +1,5 @@
 from random import randint
-from numpy import zeros, array, apply_along_axis, nonzero, append, flip
+from numpy import zeros, array, append, flip
 from math import log
 
 class gameMatrix:

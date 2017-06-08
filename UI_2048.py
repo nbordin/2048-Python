@@ -96,7 +96,7 @@ class App(tk.Frame):
                 return 
             
         if 2048 in t.m:
-            win = messagebox.askyesno("2048", "You Won! Try again?")
+            win = messagebox.askyesno("2048", "You Won! Play again?")
             if win: 
                 t.restart()
                 return
